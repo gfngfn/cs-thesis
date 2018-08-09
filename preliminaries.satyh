@@ -1,0 +1,28 @@
+@import: cs-thesis
+
+let preliminaries = '<
+  +p{
+    Preliminary preliminary preliminary
+    preliminary preliminary preliminary preliminary preliminary preliminary.
+    Preliminary preliminary preliminary preliminary, preliminary
+    preliminary preliminary preliminary\; preliminary preliminary
+    preliminary preliminary preliminary preliminary preliminary.
+    Preliminary preliminary preliminary preliminary
+    preliminary preliminary preliminary preliminary preliminary.
+  }
+  +section{Sample Section}<
+    +definition ?:({Foo}) {
+      A \dfn{foo} is definition definition definition definition.
+    }
+    +lemma ?* ?:(`first`) {
+      Lemma lemma lemma lemma lemma if and only if lemma lemma lemma lemma lemma lemma.
+    }
+    +p{
+      Thanks to \ref-lemma(`first`);, the following theorem holds.
+    }
+    +theorem ?:({Sample Theorem}) ?:(`soundness`) {
+      Theorem theorem theorem theorem,
+      theorem theorem theorem theorem theorem theorem theorem theorem.
+    }
+  >
+>

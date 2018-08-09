@@ -1,0 +1,40 @@
+@import: cs-thesis
+
+let abstract-en = '<
+  +p{
+    Abstract abstract abstract,
+    abstract abstract abstract abstract abstract abstract.
+    Abstract abstract, abstract abstract abstract abstract abstract abstract:
+    abstract, abstract, abstract abstract.
+    Abstract abstract abstract abstract abstract abstract abstract
+    abstract abstract abstract abstract abstract abstract abstract
+    abstract abstract\;
+    abstract abstract abstract abstract abstract abstract abstract abstract
+    abstract abstract abstract abstract abstract abstract abstract.
+  }
+  +p{
+    Abstract abstract abstract,
+    abstract abstract abstract abstract abstract abstract abstract abstract
+    abstract abstract abstract abstract abstract abstract abstract,
+    abstract abstract abstract abstract abstract abstract abstract abstract
+    abstract abstract abstract abstract abstract abstract abstract
+    abstract abstract abstract abstract abstract abstract.
+  }
+>
+
+let abstract-ja = '<
+  +p-ja{
+    概要、概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要、
+    概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要。
+    概要概要、概要概要概要概要概要、概要概要概要概要概要概要概要概要概要概要概要概要、
+    概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要。
+    概要概要概要概要概要概要概要、概要概要概要概要概要概要概要概要概要概要概要概要概要概要、
+    概要概要概要概要概要、概要概要概要概要概要概要概要概要概要概要概要概要。
+    概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要。
+  }
+  +p-ja{
+    概要概要概要概要概要、
+    概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要、
+    概要概要概要概要概要概要概要概要概要概要概要概要概要概要。
+  }
+>

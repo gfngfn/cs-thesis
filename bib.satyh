@@ -1,0 +1,22 @@
+@import: cs-thesis
+
+let bibliography = [
+  (`Hindley69`, Article(|
+    author = {| R. Hindley |};
+    title = {The principal type-scheme of an object in combinatory logic};
+    journal = {Transactions of the American Mathematical Society};
+    volume = Some(146);
+    number = None;
+    pages = (29, 60);
+    year = 1969;
+  |));
+  (`Milner78`, Article(|
+    author = {| Robin Milner |};
+    title = {A Theory of Type Polymorphism in Programming};
+    journal = {Journal of Computer and System Science (JCSS)};
+    volume = Some(17);
+    number = None;
+    pages = (348, 374);
+    year = 1978;
+  |));
+]

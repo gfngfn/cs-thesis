@@ -1,0 +1,23 @@
+@import: cs-thesis
+
+let introduction = '<
+  +p{
+    Introduction introduction introduction,
+    introduction introduction introduction introduction introduction
+    introduction introduction introduction introduction introduction.
+    Introduction introduction introduction,
+    introduction introduction introduction introduction
+    introduction introduction introduction introduction introduction\;
+    introduction introduction introduction introduction
+    introduction introduction introduction.
+  }
+  +p{
+    Introduction introduction, introduction,
+    introduction introduction introduction introduction
+    introduction introduction introduction introduction introduction.
+    Introduction introduction introduction,
+    introduction introduction introduction introduction
+    introduction introduction introduction introduction introduction:
+    introduction, introduction, introduction introduction.
+  }
+>
