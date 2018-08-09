@@ -1,4 +1,4 @@
-@import: cs-thesis
+@import: local
 
 let bibliography = [
   (`Hindley69`, Article(|

@@ -1,4 +1,5 @@
 % -*- coding: utf-8 -*-
+@import: local
 @import: abstract
 @import: bib
 @import: introduction
@@ -20,9 +21,11 @@ document (|
     +p{
       Acknowledgement acknowledgement acknowledgement acknowledgement acknowledgement
       acknowledgement acknowledgement acknowledgement, acknowledgement acknowledgement acknowledgement.
-      Acknowledgement acknowledgement acknowledgement acknowledgement
-      acknowledgement acknowledgement acknowledgement
-      acknowledgement acknowledgement acknowledgement acknowledgement acknowledgement acknowledgement.
+      \sample-command{
+        Acknowledgement acknowledgement acknowledgement acknowledgement
+        acknowledgement acknowledgement acknowledgement
+        acknowledgement acknowledgement acknowledgement acknowledgement acknowledgement acknowledgement.
+      }
     }
   >;
 |) '<

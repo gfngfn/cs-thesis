@@ -1,12 +1,14 @@
-@import: cs-thesis
+@import: local
 
 let preliminaries = '<
   +p{
     Preliminary preliminary preliminary
     preliminary preliminary preliminary preliminary preliminary preliminary.
-    Preliminary preliminary preliminary preliminary, preliminary
-    preliminary preliminary preliminary\; preliminary preliminary
-    preliminary preliminary preliminary preliminary preliminary.
+    \sample-command{
+      Preliminary preliminary preliminary preliminary, preliminary
+      preliminary preliminary preliminary\; preliminary preliminary
+      preliminary preliminary preliminary preliminary preliminary.
+    }
     Preliminary preliminary preliminary preliminary
     preliminary preliminary preliminary preliminary preliminary.
   }
