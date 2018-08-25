@@ -270,7 +270,7 @@ end = struct
 
 
   let section-heading ctx ib-heading =
-    line-break false false (ctx |> set-paragraph-margin section-top-margin section-bottom-margin) ib-heading
+    line-break true false (ctx |> set-paragraph-margin section-top-margin section-bottom-margin) ib-heading
 
 
   let-inline ctx \dummy it =
