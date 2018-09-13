@@ -377,6 +377,9 @@ end = struct
       read-inline ctx (embed-string (`[` ^ sacc ^ `]`))
 
 
+  let-mutable last-no-number-ref <- 0
+
+
   let document record inner =
     % -- constants --
     let title = record#title-en in
@@ -525,7 +528,12 @@ end = struct
           (chapter-heading ctx-doc None ib-toc-title) +++ bb-toc-main
             +++ clear-page
             +++ line-break false false (ctx-doc |> set-paragraph-margin 0pt 0pt)
-              (hook-page-break (fun pbinfo _ -> (show-page-number-ref <- Some(pbinfo#page-number))) ++ inline-fil)
+              (hook-page-break (fun pbinfo _ -> (
+                let n = pbinfo#page-number in
+                let () = display-message (`last-no-number = `# ^ arabic n) in
+                let () = last-no-number-ref <- n in
+                show-page-number-ref <- Some(n)
+              )) ++ inline-fil)
     in
 
     % -- bibliography --
@@ -701,6 +709,11 @@ end = struct
     figure-scheme ctx labelopt `table:` {Table} caption inner
 
 
+  let page-number pbinfo =
+    let () = display-message `page-number` in
+    arabic (pbinfo#page-number - !last-no-number-ref + 1)
+
+
   let chapter-scheme ctx label title inner =
     let () = increment num-chapter in
     let () = num-section <- 0 in
@@ -714,7 +727,7 @@ end = struct
     let ib-num =
       read-inline ctx-title (embed-string (`Chapter `# ^ s-num))
         ++ hook-page-break (fun pbinfo _ ->
-             register-cross-reference (`chapter:` ^ label ^ `:page`) (arabic pbinfo#page-number))
+             register-cross-reference (`chapter:` ^ label ^ `:page`) (page-number pbinfo))
     in
     let ib-title = read-inline ctx-title title in
     let bb-title = chapter-heading ctx (Some(ib-num)) ib-title in
