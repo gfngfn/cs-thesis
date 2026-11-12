@@ -1,0 +1,31 @@
+use package FontLatinModern
+use package FontLatinModernMath
+use package FontJunicode
+use package FontIpaEx
+
+module Appearance = struct
+
+  val font-ratio-latin = 1.
+  val font-ratio-cjk = 0.88
+
+  val font-latin-roman  = (FontJunicode.normal, font-ratio-latin, 0.)
+  val font-latin-italic = (FontJunicode.italic, font-ratio-latin, 0.)
+  val font-latin-bold   = (FontJunicode.bold, font-ratio-latin, 0.)
+  val font-latin-mono   = (FontLatinModern.mono, font-ratio-latin, 0.)
+  val font-cjk-mincho   = (FontIpaEx.mincho, font-ratio-cjk  , 0.)
+  val font-cjk-gothic   = (FontIpaEx.gothic, font-ratio-cjk  , 0.)
+
+  val font-math = FontLatinModernMath.main
+
+  val set-latin-font font ctx =
+    ctx |> set-font Latin font
+
+  val set-cjk-font font ctx =
+    ctx
+      |> set-font HanIdeographic font
+      |> set-font Kana           font
+
+  val inline ctx \book-title it =
+    read-inline (ctx |> set-latin-font font-latin-italic) it
+
+end

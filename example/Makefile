@@ -1,3 +1,8 @@
 
-all:
-	satysfi -b template.saty
+.PHONY: solve build
+
+solve:
+	saphe solve template.saty
+
+build:
+	saphe build template.saty
