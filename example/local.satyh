@@ -1,4 +1,9 @@
-@import: cs-thesis
+use package CsThesis
+use package open Stdlib
 
-let-inline ctx \sample-command it =
-  read-inline (ctx |> set-text-color Color.red) it
+module Local = struct
+
+  val inline ctx \sample-command it =
+    read-inline (ctx |> set-text-color Color.red) it
+
+end

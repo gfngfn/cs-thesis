@@ -210,6 +210,7 @@ end = struct
       |> set-font Kana           font-cjk-mincho
       |> set-font HanIdeographic font-cjk-mincho
       |> set-font Latin          font-latin-roman
+      |> set-font OtherScript    font-latin-roman
       |> set-math-font FontLatinModernMath.main
       |> set-hyphen-penalty 1000
       |> set-space-ratio 0.275 0.08 0.12

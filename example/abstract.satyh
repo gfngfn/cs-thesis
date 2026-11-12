@@ -1,40 +1,45 @@
-@import: local
+use package open CsThesis
+use open Local of `./local`
 
-let abstract-en = '<
-  +p{
-    Abstract abstract abstract,
-    abstract abstract abstract abstract abstract abstract.
-    Abstract abstract, abstract abstract abstract abstract abstract abstract:
-    abstract, abstract, abstract abstract.
-    Abstract abstract abstract abstract abstract abstract abstract
-    abstract abstract abstract abstract abstract abstract abstract
-    abstract abstract\;
-    abstract abstract abstract abstract abstract abstract abstract abstract
-    abstract abstract abstract abstract abstract abstract abstract.
-  }
-  +p{
-    Abstract abstract abstract,
-    abstract abstract abstract abstract abstract abstract abstract abstract
-    abstract abstract abstract abstract abstract abstract abstract,
-    abstract abstract abstract abstract abstract abstract abstract abstract
-    abstract abstract abstract abstract abstract abstract abstract
-    abstract abstract abstract abstract abstract abstract.
-  }
->
+module Abstract = struct
 
-let abstract-ja = '<
-  +p-ja{
-    概要、概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要、
-    概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要。
-    概要概要、概要概要概要概要概要、概要概要概要概要概要概要概要概要概要概要概要概要、
-    概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要。
-    概要概要概要概要概要概要概要、概要概要概要概要概要概要概要概要概要概要概要概要概要概要、
-    概要概要概要概要概要、概要概要概要概要概要概要概要概要概要概要概要概要。
-    概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要。
-  }
-  +p-ja{
-    概要概要概要概要概要、
-    概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要、
-    概要概要概要概要概要概要概要概要概要概要概要概要概要概要。
-  }
->
+  val abstract-en = '<
+    +p{
+      Abstract abstract abstract,
+      abstract abstract abstract abstract abstract abstract.
+      Abstract abstract, abstract abstract abstract abstract abstract abstract:
+      abstract, abstract, abstract abstract.
+      Abstract abstract abstract abstract abstract abstract abstract
+      abstract abstract abstract abstract abstract abstract abstract
+      abstract abstract\;
+      abstract abstract abstract abstract abstract abstract abstract abstract
+      abstract abstract abstract abstract abstract abstract abstract.
+    }
+    +p{
+      Abstract abstract abstract,
+      abstract abstract abstract abstract abstract abstract abstract abstract
+      abstract abstract abstract abstract abstract abstract abstract,
+      abstract abstract abstract abstract abstract abstract abstract abstract
+      abstract abstract abstract abstract abstract abstract abstract
+      abstract abstract abstract abstract abstract abstract.
+    }
+  >
+
+  val abstract-ja = '<
+    +p-ja{
+      概要、概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要、
+      概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要。
+      概要概要、概要概要概要概要概要、概要概要概要概要概要概要概要概要概要概要概要概要、
+      概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要。
+      概要概要概要概要概要概要概要、概要概要概要概要概要概要概要概要概要概要概要概要概要概要、
+      概要概要概要概要概要、概要概要概要概要概要概要概要概要概要概要概要概要。
+      概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要。
+    }
+    +p-ja{
+      概要概要概要概要概要、
+      概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要概要、
+      概要概要概要概要概要概要概要概要概要概要概要概要概要概要。
+    }
+  >
+
+end
