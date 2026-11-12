@@ -1,0 +1,39 @@
+use package open CsThesis
+
+use open Local of `./local`
+use open Abstract of `./abstract`
+use open Introduction of `./introduction`
+use open Preliminaries of `./preliminaries`
+use open Bib of `./bib`
+
+document (|
+  thesis-category-en = {A Master Thesis},
+  thesis-category-ja = {修士論文},
+  degree = {Master of Information Science and Technology in Computer Science},
+  title-en = {Title in English},
+  title-ja = {邦文標題},
+  author-en = {Jiro Todai},
+  author-ja = {東大 次郎},
+  supervisor-en = {Kyoin Shido},
+  supervisor-ja = {紫藤 匡胤},
+  supervisor-title = {Professor},
+  submitted-to = {the Graduate School of the University of Tokyo},
+  date = {February XXth, 20YY},
+  abstract-en = abstract-en,
+  abstract-ja = abstract-ja,
+  bibliography = bibliography,
+  acknowledgements = '<
+    +p{
+      Acknowledgement acknowledgement acknowledgement acknowledgement acknowledgement
+      acknowledgement acknowledgement acknowledgement, acknowledgement acknowledgement acknowledgement.
+      \sample-command{
+        Acknowledgement acknowledgement acknowledgement acknowledgement
+        acknowledgement acknowledgement acknowledgement
+        acknowledgement acknowledgement acknowledgement acknowledgement acknowledgement acknowledgement.
+      }
+    }
+  >,
+|) '<
+  +chapter?(label = `introduction`)({Introduction})< #introduction; >
+  +chapter?(label = `preliminaries`)({Preliminaries})< #preliminaries; >
+>

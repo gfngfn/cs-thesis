@@ -1,0 +1,28 @@
+use package open CsThesis
+use open Local of `./local`
+
+module Introduction = struct
+
+  val introduction = '<
+    +p{
+      Introduction introduction introduction,
+      introduction introduction introduction introduction introduction
+      introduction introduction introduction introduction introduction.
+      Introduction introduction introduction,
+      introduction introduction introduction introduction
+      introduction introduction introduction introduction introduction\;
+      introduction introduction introduction introduction
+      introduction introduction introduction.
+    }
+    +p{
+      Introduction introduction, introduction,
+      introduction introduction introduction introduction
+      introduction introduction introduction introduction introduction.
+      Introduction introduction introduction,
+      introduction introduction introduction introduction
+      introduction introduction introduction introduction introduction:
+      introduction, introduction, introduction introduction.
+    }
+  >
+
+end

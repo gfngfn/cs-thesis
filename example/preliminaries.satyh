@@ -1,0 +1,35 @@
+use package open CsThesis
+use open Local of `./local`
+
+module Preliminaries = struct
+
+  val preliminaries = '<
+    +p{
+      Preliminary preliminary preliminary
+      preliminary preliminary preliminary preliminary preliminary preliminary.
+      \sample-command{
+        Preliminary preliminary preliminary preliminary, preliminary
+        preliminary preliminary preliminary\; preliminary preliminary
+        preliminary preliminary preliminary preliminary preliminary.
+      }
+      Preliminary preliminary preliminary preliminary
+      preliminary preliminary preliminary preliminary preliminary.
+    }
+    +section{Sample Section}<
+      +definition?(title = {Foo})({
+        A \dfn{foo} is definition definition definition definition.
+      });
+      +lemma?(label = `first`)({
+        Lemma lemma lemma lemma lemma if and only if lemma lemma lemma lemma lemma lemma.
+      });
+      +p{
+        Thanks to \ref-lemma(`first`);, the following theorem holds.
+      }
+      +theorem?(title = {Sample Theorem}, label = `soundness`)({
+        Theorem theorem theorem theorem,
+        theorem theorem theorem theorem theorem theorem theorem theorem.
+      });
+    >
+  >
+
+end

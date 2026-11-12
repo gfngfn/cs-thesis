@@ -1,0 +1,116 @@
+use package open Stdlib
+use open Appearance
+
+module Bib = struct
+  type in-proceedings = (|
+    author    : list inline-text,
+    title     : inline-text,
+    booktitle : inline-text,
+    series    : option inline-text,
+    volume    : option int,
+    number    : option inline-text,
+    pages     : int * int,
+    year      : int,
+  |)
+
+  type article = (|
+    author  : list inline-text,
+    title   : inline-text,
+    journal : inline-text,
+    volume  : option int,
+    number  : option inline-text,
+    pages   : int * int,
+    year    : int,
+  |)
+
+  type book = (|
+    author    : list inline-text,
+    title     : inline-text,
+    publisher : inline-text,
+    year      : int,
+  |)
+
+  type item =
+    | InProceedings of in-proceedings
+    | Article       of article
+    | Book          of book
+
+  val bib-left-padding = 20pt
+
+  val bib-entry ctx cite-num ib-main =
+    let ib-num = read-inline ctx (embed-string (`[` ^ arabic cite-num ^ `] `#)) in
+    let ib =
+      inline-skip (0pt -' Inline.get-natural-advance ib-num)
+        ++ ib-num ++ ib-main ++ inline-fil
+    in
+    let pads = (bib-left-padding, 0pt, 0pt, 0pt) in
+    block-frame-breakable ctx pads VDecoSet.empty (fun ctx -> line-break true true ctx ib)
+
+  val join-authors lst =
+    match List.reverse lst with
+    | [] ->
+        {}
+    | it :: [] ->
+        it
+    | it2 :: it1 :: [] ->
+        {#it1; and #it2;}
+    | it-last :: it-rest ->
+        let it =
+          it-rest |> List.reverse |> List.fold (fun itacc it ->
+            {#itacc;#it;,\ }
+          ) {}
+        in
+        {#it;and #it-last;}
+    end
+
+  val make-volume-and-number optvol optnum optseries =
+    let its =
+      match optseries with
+      | None     -> {,\ }
+      | Some(it) -> {\ of \book-title{#it;},\ }
+      end
+    in
+    match (optvol, optnum) with
+    | (None, _)          -> {\ }
+    | (Some(v), None)    -> let itv = embed-string (arabic v) in {#itv;#its;}
+    | (Some(v), Some(n)) -> let itv = embed-string (arabic v) in {#itv;(#n;)#its;}
+    end
+
+  val make-pages (p1, p2) =
+    embed-string ((arabic p1) ^ `–` ^ (arabic p2))
+
+  val render ctx bibs =
+    bibs |> List.fold-indexed (fun bbacc i (_, bibitem) ->
+      let it =
+        match bibitem with
+        | InProceedings(r) ->
+            let it-authors = join-authors r#author in
+            let it-title = r#title in
+            let it-book-title = r#booktitle in
+            let it-volnum = make-volume-and-number r#volume r#number r#series in
+            let it-pages = make-pages r#pages in
+            let it-year = embed-string (arabic r#year) in
+            {#it-authors;. #it-title;.
+              In \book-title{#it-book-title;}, #it-volnum;pages #it-pages;,
+              #it-year;.}
+        | Article(r) ->
+            let it-authors = join-authors r#author in
+            let it-title = r#title in
+            let it-journal = r#journal in
+            let it-volnum = make-volume-and-number r#volume r#number None in
+            let it-pages = make-pages r#pages in
+            let it-year = embed-string (arabic r#year) in
+            {#it-authors;. #it-title;.
+              \book-title{#it-journal;}, #it-volnum;pages #it-pages;, #it-year;.}
+        | Book(r) ->
+            let it-authors = join-authors r#author in
+            let it-title = r#title in
+            let it-publisher = r#publisher in
+            let it-year = embed-string (arabic r#year) in
+            {#it-authors;. \book-title{#it-title;}. #it-publisher;, #it-year;.}
+        end
+      in
+      bbacc +++ bib-entry ctx (i + 1) (read-inline ctx it)
+    ) block-nil
+
+end

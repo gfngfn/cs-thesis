@@ -1,0 +1,6 @@
+library:
+  main_module: CsThesis
+  source_directories:
+  - ./src
+  test_directories:
+  - ./test
