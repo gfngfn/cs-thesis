@@ -4,4 +4,4 @@
 
 ## How to Use
 
-Please the file `example/template.saty` as a reference.
+Please use the file `example/template.saty` as a reference.
