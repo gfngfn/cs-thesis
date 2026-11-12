@@ -1,209 +1,207 @@
-% -*- coding: utf-8 -*-
-@require: pervasives
-@require: gr
-@require: list
-@require: option
-@require: math
-@require: color
-@require: vdecoset
+use package open Stdlib
+use package Math
+use package Code
+use package HyphEnglish
+use package Unidata
+use package FontLatinModern
+use package FontLatinModernMath
+use package FontJunicode
+use package FontIpaEx
 
+use Bib
 
-type bib-in-proceedings =
-  (|
-    author    : inline-text list;
-    title     : inline-text;
-    booktitle : inline-text;
-    series    : inline-text option;
-    volume    : int option;
-    number    : inline-text option;
-    pages     : int * int;
-    year      : int;
-  |)
+module CsThesis :> sig
 
-type bib-article =
-  (|
-    author  : inline-text list;
-    title   : inline-text;
-    journal : inline-text;
-    volume  : int option;
-    number  : inline-text option;
-    pages   : int * int;
-    year    : int;
-  |)
-
-type bib-book =
-  (|
-    author    : inline-text list;
-    title     : inline-text;
-    publisher : inline-text;
-    year      : int;
-  |)
-
-type bib-item =
-  | InProceedings of bib-in-proceedings
-  | Article       of bib-article
-  | Book          of bib-book
-
-
-module CSThesis : sig
-
-  val document : 'a -> block-text -> document
-    constraint 'a :: (|
-      title-en : inline-text;
-      title-ja : inline-text;
-      author-en : inline-text;
-      author-ja : inline-text;
-      supervisor-en : inline-text;
-      supervisor-ja : inline-text;
-      supervisor-title : inline-text;
-      date : inline-text;
-      abstract-en : block-text;
-      abstract-ja : block-text;
-      acknowledgements : block-text;
-      bibliography : (string * bib-item) list;
+  module Bib : sig
+    type in-proceedings = (|
+      author    : list inline-text,
+      title     : inline-text,
+      booktitle : inline-text,
+      series    : option inline-text,
+      volume    : option int,
+      number    : option inline-text,
+      pages     : int * int,
+      year      : int,
     |)
 
-  val font-latin-roman  : string * float * float
-  val font-latin-italic : string * float * float
-  val font-latin-bold   : string * float * float
-  val font-latin-mono   : string * float * float
-  val font-cjk-mincho   : string * float * float
-  val font-cjk-gothic   : string * float * float
-  val set-latin-font : (string * float * float) -> context -> context
-  val set-cjk-font   : (string * float * float) -> context -> context
-  direct \ref : [string] inline-cmd
-  direct \ref-page : [string] inline-cmd
-  direct \ref-chapter : [string] inline-cmd
-  direct \ref-section : [string] inline-cmd
-  direct \ref-definition : [string] inline-cmd
-  direct \ref-theorem : [string] inline-cmd
-  direct \ref-lemma : [string] inline-cmd
-  direct \ref-corollary : [string] inline-cmd
-  direct \ref-example : [string] inline-cmd
-  direct \ref-figure : [string] inline-cmd
-  direct \ref-table : [string] inline-cmd
-  direct \cite : [string list] inline-cmd
-  direct \figure : [string?; inline-text; block-text] inline-cmd
-  direct \table : [string?; inline-text; block-text] inline-cmd
-  direct +p : [inline-text] block-cmd
-  direct +pn : [inline-text] block-cmd
-  direct +p-ja : [inline-text] block-cmd
-  direct +chapter : [string?; inline-text; block-text] block-cmd
-  direct +section : [string?; inline-text; block-text] block-cmd
-  direct +subsection : [string?; inline-text; block-text] block-cmd
-  direct +definition : [inline-text?; string?; inline-text] block-cmd
-  direct +theorem : [inline-text?; string?; inline-text] block-cmd
-  direct +example : [inline-text?; string?; inline-text] block-cmd
-  direct +lemma : [inline-text?; string?; inline-text] block-cmd
-  direct +corollary : [inline-text?; string?; inline-text] block-cmd
-  direct +proof : [inline-text?; inline-text] block-cmd
-  direct \emph : [inline-text] inline-cmd
-  direct \dfn : [inline-text] inline-cmd
-  direct \roman : [inline-text] inline-cmd
+    type article = (|
+      author  : list inline-text,
+      title   : inline-text,
+      journal : inline-text,
+      volume  : option int,
+      number  : option inline-text,
+      pages   : int * int,
+      year    : int,
+    |)
+
+    type book = (|
+      author    : list inline-text,
+      title     : inline-text,
+      publisher : inline-text,
+      year      : int,
+    |)
+
+    type item =
+      | InProceedings of in-proceedings
+      | Article       of article
+      | Book          of book
+  end
+
+  val document : (|
+      title-en : inline-text,
+      title-ja : inline-text,
+      author-en : inline-text,
+      author-ja : inline-text,
+      supervisor-en : inline-text,
+      supervisor-ja : inline-text,
+      supervisor-title : inline-text,
+      date : inline-text,
+      abstract-en : block-text,
+      abstract-ja : block-text,
+      acknowledgements : block-text,
+      bibliography : list (string * Bib.item),
+    |) -> block-text -> document
+
+  val font-latin-roman  : font * float * float
+  val font-latin-italic : font * float * float
+  val font-latin-bold   : font * float * float
+  val font-latin-mono   : font * float * float
+  val font-cjk-mincho   : font * float * float
+  val font-cjk-gothic   : font * float * float
+  val set-latin-font : (font * float * float) -> context -> context
+  val set-cjk-font   : (font * float * float) -> context -> context
+  val \ref : inline [string]
+  val \ref-page : inline [string]
+  val \ref-chapter : inline [string]
+  val \ref-section : inline [string]
+  val \ref-definition : inline [string]
+  val \ref-theorem : inline [string]
+  val \ref-lemma : inline [string]
+  val \ref-corollary : inline [string]
+  val \ref-example : inline [string]
+  val \ref-figure : inline [string]
+  val \ref-table : inline [string]
+  val \cite : inline [list string]
+  val \figure : inline [?(label : string) inline-text, block-text]
+  val \table : inline [?(label : string) inline-text, block-text]
+  val +p : block [inline-text]
+  val +pn : block [inline-text]
+  val +p-ja : block [inline-text]
+  val +chapter : block [?(label : string) inline-text, block-text]
+  val +section : block [?(label : string) inline-text, block-text]
+  val +subsection : block [?(label : string) inline-text, block-text]
+  val +definition : block [?(title : inline-text, label : string) inline-text]
+  val +theorem : block [?(title : inline-text, label : string) inline-text]
+  val +example : block [?(title : inline-text, label : string) inline-text]
+  val +lemma : block [?(title : inline-text, label : string) inline-text]
+  val +corollary : block [?(title : inline-text, label : string) inline-text]
+  val +proof : block [?(title : inline-text) inline-text]
+  val \emph : inline [inline-text]
+  val \dfn : inline [inline-text]
+  val \roman : inline [inline-text]
 
 end = struct
+
+  module Bib = Bib
 
   type toc-element =
     | TOCElementChapter    of string * inline-text
     | TOCElementSection    of string * inline-text
     | TOCElementSubsection of string * inline-text
 
+  val generate-fresh-label =
+    let mutable count <- 0 in
+    (fun () ->
+      let () = count <- !count + 1 in
+      `generated:` ^ (arabic (!count))
+    )
 
-  let generate-fresh-label =
-    let-mutable count <- 0 in
-      (fun () -> (
-        let () = count <- !count + 1 in
-          `generated:` ^ (arabic (!count))
-      ))
-
-
-  let-inline ctx \ref key =
+  val inline ctx \ref key =
     let opt = get-cross-reference (key ^ `:num`) in
     let it = embed-string (Option.from `?` opt) in
-      read-inline ctx it
+    read-inline ctx it
 
 
-  let-inline ctx \ref-page key =
+  val inline ctx \ref-page key =
     let opt = get-cross-reference (key ^ `:page`) in
     let it = embed-string (Option.from `?` opt) in
       read-inline ctx it
 
 
-  let-inline ctx \ref-chapter key =
+  val inline ctx \ref-chapter key =
     let opt = get-cross-reference (`chapter:` ^ key ^ `:num`) in
     let it = embed-string (Option.from `?` opt) in
       read-inline ctx {Chapter #it;}
 
 
-  let-inline ctx \ref-section key =
+  val inline ctx \ref-section key =
     let opt = get-cross-reference (`section:` ^ key ^ `:num`) in
     let it = embed-string (Option.from `?` opt) in
       read-inline ctx {Section #it;}
 
 
-  let-inline ctx \ref-figure key =
+  val inline ctx \ref-figure key =
     let opt = get-cross-reference (`figure:` ^ key ^ `:num`) in
     let it = embed-string (Option.from `?` opt) in
       read-inline ctx {Figure #it;}
 
 
-  let-inline ctx \ref-table key =
+  val inline ctx \ref-table key =
     let opt = get-cross-reference (`table:` ^ key ^ `:num`) in
     let it = embed-string (Option.from `?` opt) in
       read-inline ctx {Table #it;}
 
 
-  let font-size-normal  = 12pt
-  let font-size-title   = 32pt
-  let font-size-author  = 16pt
-  let font-size-chapter = 24pt
-  let font-size-section = 18pt
-  let font-size-subsection = 16pt
+  val font-size-normal  = 12pt
+  val font-size-title   = 32pt
+  val font-size-author  = 16pt
+  val font-size-chapter = 24pt
+  val font-size-section = 18pt
+  val font-size-subsection = 16pt
 
-  let section-top-margin = 20pt
-  let section-bottom-margin = 12pt
-  let section-top-padding = 6pt
-  let section-bottom-padding = 7pt
-  let title-line-margin = 4pt
-  let title-line-thickness = 1pt
-  let header-line-thickness = 0.5pt
-  let header-line-margin-top = 2pt
-  let header-line-margin-bottom = 6pt
-  let bib-left-padding = 20pt
+  val section-top-margin = 20pt
+  val section-bottom-margin = 12pt
+  val section-top-padding = 6pt
+  val section-bottom-padding = 7pt
+  val title-line-margin = 4pt
+  val title-line-thickness = 1pt
+  val header-line-thickness = 0.5pt
+  val header-line-margin-top = 2pt
+  val header-line-margin-bottom = 6pt
+  val bib-left-padding = 20pt
 
-  let toc-section-indent = 20pt
-  let toc-subsection-indent = 40pt
+  val toc-section-indent = 20pt
+  val toc-subsection-indent = 40pt
 
-  let font-ratio-latin = 1.
-  let font-ratio-cjk = 0.88
+  val font-ratio-latin = 1.
+  val font-ratio-cjk = 0.88
 
-  let font-latin-roman  = (`Junicode`   , font-ratio-latin, 0.)
-  let font-latin-italic = (`Junicode-it`, font-ratio-latin, 0.)
-  let font-latin-bold   = (`Junicode-b` , font-ratio-latin, 0.)
-  let font-latin-mono   = (`lmmono`    , font-ratio-latin, 0.)
-  let font-cjk-mincho   = (`ipaexm`    , font-ratio-cjk  , 0.)
-  let font-cjk-gothic   = (`ipaexg`    , font-ratio-cjk  , 0.)
+  val font-latin-roman  = (FontJunicode.normal, font-ratio-latin, 0.)
+  val font-latin-italic = (FontJunicode.italic, font-ratio-latin, 0.)
+  val font-latin-bold   = (FontJunicode.bold, font-ratio-latin, 0.)
+  val font-latin-mono   = (FontLatinModern.mono, font-ratio-latin, 0.)
+  val font-cjk-mincho   = (FontIpaEx.mincho, font-ratio-cjk  , 0.)
+  val font-cjk-gothic   = (FontIpaEx.gothic, font-ratio-cjk  , 0.)
 
-
-  let set-latin-font font ctx =
+  val set-latin-font font ctx =
     ctx |> set-font Latin font
 
+  val set-cjk-font font ctx =
+    ctx
+      |> set-font HanIdeographic font
+      |> set-font Kana           font
 
-  let set-cjk-font font ctx =
-    ctx |> set-font HanIdeographic font
-        |> set-font Kana           font
-
-
-  let-inline ctx \roman inner =
+  val inline ctx \roman inner =
     read-inline (ctx |> set-latin-font font-latin-roman) inner
 
-
-%  let-inline ctx \math-default m =
+%  val inline ctx \math-default m =
 %    embed-math (ctx |> set-latin-font font-latin-roman) m
 
-
-  let get-standard-context wid =
-    get-initial-context wid (command \math)
+  val get-standard-context wid =
+    get-initial-context wid (command \Math.math)
+      |> set-code-text-command (command \Code.Default.code)
+      |> set-hyphenation-dictionary HyphEnglish.hyphenation
+      |> set-unicode-char-database Unidata.unidata
       |> set-dominant-wide-script Kana
       |> set-language Kana Japanese
       |> set-language HanIdeographic Japanese
@@ -212,86 +210,80 @@ end = struct
       |> set-font Kana           font-cjk-mincho
       |> set-font HanIdeographic font-cjk-mincho
       |> set-font Latin          font-latin-roman
-      |> set-math-font `lmodern`
+      |> set-math-font FontLatinModernMath.main
       |> set-hyphen-penalty 1000
       |> set-space-ratio 0.275 0.08 0.12
 
+  val mutable ref-float-boxes <- []
 
-  let-mutable ref-float-boxes <- []
-
-
-  let height-of-float-boxes pageno =
+  val height-of-float-boxes pageno =
 %    let () = display-message `get height` in
-    (!ref-float-boxes) |> List.fold-left (fun h (pn, bb) -> (
+    (!ref-float-boxes) |> List.fold (fun h (pn, bb) ->
       if pn < pageno then h +' (get-natural-length bb) else h
-    )) 0pt
+    ) 0pt
 
+  val make-chapter-title ctx =
+    ctx
+      |> set-font-size font-size-chapter
+      |> set-font Latin font-latin-bold
+      |> set-cjk-font font-cjk-gothic
 
-  let make-chapter-title ctx =
-    ctx |> set-font-size font-size-chapter
-        |> set-font Latin font-latin-bold
-        |> set-cjk-font font-cjk-gothic
+  val make-section-title ctx =
+    ctx
+      |> set-font-size font-size-section
+      |> set-font Latin font-latin-bold
+      |> set-cjk-font font-cjk-gothic
 
+  val make-subsection-title ctx =
+    ctx
+      |> set-font-size font-size-subsection
+      |> set-font Latin font-latin-bold
+      |> set-cjk-font font-cjk-gothic
 
-  let make-section-title ctx =
-    ctx |> set-font-size font-size-section
-        |> set-font Latin font-latin-bold
-        |> set-cjk-font font-cjk-gothic
+  val mutable toc-acc-ref <- []
 
-
-  let make-subsection-title ctx =
-    ctx |> set-font-size font-size-subsection
-        |> set-font Latin font-latin-bold
-        |> set-cjk-font font-cjk-gothic
-
-
-  let-mutable toc-acc-ref <- []
-
-
-  let get-cross-reference-number prefix label =
+  val get-cross-reference-number prefix label =
     match get-cross-reference (prefix ^ label ^ `:num`) with
     | None    -> `?`
     | Some(s) -> s
+    end
 
-
-  let get-cross-reference-page prefix label =
+  val get-cross-reference-page prefix label =
     match get-cross-reference (prefix ^ label ^ `:page`) with
     | None    -> `?`
     | Some(s) -> s
+    end
 
-
-  let chapter-heading ctx ib-num-opt ib-title =
+  val chapter-heading ctx ib-num-opt ib-title =
     let bb =
       match ib-num-opt with
       | None         -> block-nil
       | Some(ib-num) -> line-break false false ctx (ib-num ++ inline-fil)
+      end
     in
-      bb +++ line-break false false ctx (ib-title ++ inline-fil) +++ block-skip 36pt
+    bb +++ line-break false false ctx (ib-title ++ inline-fil) +++ block-skip 36pt
 
-
-  let section-heading ctx ib-heading =
+  val section-heading ctx ib-heading =
     line-break true false (ctx |> set-paragraph-margin section-top-margin section-bottom-margin) ib-heading
 
-
-  let-inline ctx \dummy it =
+  val inline ctx \dummy it =
     let ib = read-inline (ctx |> set-text-color Color.white) it in
-    let w = get-natural-width ib in
-      ib ++ inline-skip (0pt -' w)
+    let w = Inline.get-natural-advance ib in
+    ib ++ inline-skip (0pt -' w)
 
-
-  let-rec repeat-inline n ib =
-    if n <= 0 then inline-nil else
+  val rec repeat-inline n ib =
+    if n <= 0 then
+      inline-nil
+    else
       ib ++ (repeat-inline (n - 1) ib)
 
-
-  let make-dots-line ctx w =
+  val make-dots-line ctx w =
     let ib = read-inline ctx {.} ++ inline-skip 1pt in
-    let wdot = get-natural-width ib in
+    let wdot = Inline.get-natural-advance ib in
     let n = round (w /' wdot) in
-      inline-fil ++ (repeat-inline n ib)
+    inline-fil ++ (repeat-inline n ib)
 
-
-  let-block ctx +abstract bt-abs-en bt-abs-ja =
+  val block ctx +abstract bt-abs-en bt-abs-ja =
     let bb-title-en =
       line-break false false ctx
         (inline-fil ++ read-inline (ctx |> set-latin-font font-latin-bold) {ABSTRACT} ++ inline-fil)
@@ -302,89 +294,87 @@ end = struct
     in
     let bb-abs-en = read-block ctx bt-abs-en in
     let bb-abs-ja = read-block ctx bt-abs-ja in
-       [
-         bb-title-en;
-         bb-abs-en;
-         block-skip 18pt;
-         bb-title-ja;
-         bb-abs-ja;
-         clear-page;
-       ] |> List.fold-left (+++) block-nil
+    [
+      bb-title-en,
+      bb-abs-en,
+      block-skip 18pt,
+      bb-title-ja,
+      bb-abs-ja,
+      clear-page,
+    ] |> List.fold (+++) block-nil
 
+  val mutable needs-indentation-ref <- true
+  val mutable show-page-number-ref <- None
 
-  let-mutable needs-indentation-ref <- true
-  let-mutable show-page-number-ref <- None
-
-
-  let bib-entry ctx cite-num ib-main =
+  val bib-entry ctx cite-num ib-main =
     let ib-num = read-inline ctx (embed-string (`[` ^ arabic cite-num ^ `] `#)) in
     let ib =
-      inline-skip (0pt -' get-natural-width ib-num)
+      inline-skip (0pt -' Inline.get-natural-advance ib-num)
         ++ ib-num ++ ib-main ++ inline-fil
     in
     let pads = (bib-left-padding, 0pt, 0pt, 0pt) in
     block-frame-breakable ctx pads VDecoSet.empty (fun ctx -> line-break true true ctx ib)
 
-
-  let join-authors lst =
+  val join-authors lst =
     match List.reverse lst with
-    | []                 -> {}
-    | it :: []           -> it
-    | it2 :: it1 :: []   -> {#it1; and #it2;}
-
+    | [] ->
+        {}
+    | it :: [] ->
+        it
+    | it2 :: it1 :: [] ->
+        {#it1; and #it2;}
     | it-last :: it-rest ->
         let it =
-          it-rest |> List.reverse |> List.fold-left (fun itacc it -> (
+          it-rest |> List.reverse |> List.fold (fun itacc it ->
             {#itacc;#it;,\ }
-          )) {}
+          ) {}
         in
-          {#it;and #it-last;}
+        {#it;and #it-last;}
+    end
 
-
-  let-inline ctx \book-title it =
+  val inline ctx \book-title it =
     read-inline (ctx |> set-latin-font font-latin-italic) it
 
-
-  let make-volume-and-number optvol optnum optseries =
+  val make-volume-and-number optvol optnum optseries =
     let its =
       match optseries with
       | None     -> {,\ }
       | Some(it) -> {\ of \book-title{#it;},\ }
+      end
     in
-      match (optvol, optnum) with
-      | (None, _)          -> {\ }
-      | (Some(v), None)    -> let itv = embed-string (arabic v) in {#itv;#its;}
-      | (Some(v), Some(n)) -> let itv = embed-string (arabic v) in {#itv;(#n;)#its;}
+    match (optvol, optnum) with
+    | (None, _)          -> {\ }
+    | (Some(v), None)    -> let itv = embed-string (arabic v) in {#itv;#its;}
+    | (Some(v), Some(n)) -> let itv = embed-string (arabic v) in {#itv;(#n;)#its;}
+    end
 
-
-  let make-pages (p1, p2) =
+  val make-pages (p1, p2) =
     embed-string ((arabic p1) ^ `–` ^ (arabic p2))
 
-
-  let-inline ctx \cite labels =
+  val inline ctx \cite labels =
     let sacc =
-      labels |> List.fold-left-adjacent (fun sacc label _ opt -> (
+      labels |> List.fold-adjacent (fun sacc label _ opt ->
         let s-num =
           match get-cross-reference (`bib:` ^ label) with
           | None    -> `?`
           | Some(s) -> s
+          end
         in
-          match opt with
-          | None    -> sacc ^ s-num
-          | Some(_) -> sacc ^ s-num ^ `, `#
-      )) ` `
+        match opt with
+        | None    -> sacc ^ s-num
+        | Some(_) -> sacc ^ s-num ^ `, `#
+        end
+      ) ` `
     in
-      read-inline ctx (embed-string (`[` ^ sacc ^ `]`))
+    read-inline ctx (embed-string (`[` ^ sacc ^ `]`))
 
+  val mutable last-no-number-ref <- 0
 
-  let-mutable last-no-number-ref <- 0
-
-
-  let document record inner =
+  val document record inner =
     % -- constants --
     let title = record#title-en in
     let author = record#author-en in
-    let page = A4Paper in
+    let page = PaperSize.a4 in
     let txtorg = (100pt, 100pt) in
     let txtwid = 380pt in
     let txthgt = 630pt in
@@ -418,30 +408,30 @@ end = struct
       let spvs-title = record#supervisor-title in
       let date = record#date in
       [
-        block-skip 54pt;
-        centerf record#title-en;
-        centerf record#title-ja;
-        block-skip 18pt;
-        centerf {by};
-        block-skip 12pt;
-        centerf record#author-en;
-        centerf record#author-ja;
-        block-skip 18pt;
-        centerf {A Master Thesis};
-        centerf {修士論文};
-        block-skip 72pt;
-        centerf {Submitted to};
-        centerf {the Graduate School of the University of Tokyo};
-        centerf {on #date;};
-        centerf {in Partial Fulfillment of the Requirements};
-        centerf {for the Degree of Master of Information Science};
-        centerf {and Technology};
-        centerf {in Computer Science};
-        block-skip 18pt;
-        centerf {Thesis Supervisor: #spvs-en; #spvs-ja;};
-        centerf {#spvs-title; of Computer Science};
-        clear-page;
-      ] |> List.fold-left (+++) block-nil
+        block-skip 54pt,
+        centerf record#title-en,
+        centerf record#title-ja,
+        block-skip 18pt,
+        centerf {by},
+        block-skip 12pt,
+        centerf record#author-en,
+        centerf record#author-ja,
+        block-skip 18pt,
+        centerf {A Master Thesis},
+        centerf {修士論文},
+        block-skip 72pt,
+        centerf {Submitted to},
+        centerf {the Graduate School of the University of Tokyo},
+        centerf {on #date;},
+        centerf {in Partial Fulfillment of the Requirements},
+        centerf {for the Degree of Master of Information Science},
+        centerf {and Technology},
+        centerf {in Computer Science},
+        block-skip 18pt,
+        centerf {Thesis Supervisor: #spvs-en; #spvs-ja;},
+        centerf {#spvs-title; of Computer Science},
+        clear-page,
+      ] |> List.fold (+++) block-nil
     in
 
     % -- abstract --
@@ -456,9 +446,9 @@ end = struct
       let ib-ackn-title =
         read-inline (make-chapter-title ctx-doc) {Acknowledgements} ++ inline-fil
       in
-        (chapter-heading ctx-doc None ib-ackn-title)
-          +++ read-block ctx-doc record#acknowledgements
-            +++ clear-page
+      (chapter-heading ctx-doc None ib-ackn-title)
+        +++ read-block ctx-doc record#acknowledgements
+          +++ clear-page
     in
 
     % -- main --
@@ -470,7 +460,7 @@ end = struct
           read-inline (make-chapter-title ctx-doc) {Contents} ++ inline-fil
         in
         let bb-toc-main =
-          (!toc-acc-ref) |> List.reverse |> List.fold-left (fun bbacc tocelem -> (
+          (!toc-acc-ref) |> List.reverse |> List.fold (fun bbacc tocelem ->
             match tocelem with
             | TOCElementChapter(label, title) ->
                 let ctx =
@@ -484,12 +474,15 @@ end = struct
                 in
                 let ib-page = inline-skip 3pt ++ read-inline ctx it-page in
                 let ib-middle =
-                  let w = (get-text-width ctx) -' (get-natural-width ib-title) -' (get-natural-width ib-page) in
-                    if w <' 0pt then inline-fil else
-                      make-dots-line ctx w
+                  let w =
+                    get-text-width ctx
+                      -' Inline.get-natural-advance ib-title
+                      -' Inline.get-natural-advance ib-page
+                  in
+                  if w <' 0pt then inline-fil else
+                    make-dots-line ctx w
                 in
-                  bbacc +++ line-break true true ctx (ib-title ++ ib-middle ++ ib-page)
-
+                bbacc +++ line-break true true ctx (ib-title ++ ib-middle ++ ib-page)
             | TOCElementSection(label, title) ->
                 let ctx = ctx-doc in
                 let it-num = embed-string (get-cross-reference-number `section:` label) in
@@ -500,13 +493,16 @@ end = struct
                 in
                 let ib-page = inline-skip 3pt ++ read-inline ctx it-page in
                 let ib-middle =
-                  let w = (get-text-width ctx) -' (get-natural-width ib-title) -' (get-natural-width ib-page) in
-                    if w <' 0pt then inline-fil else
-                      make-dots-line ctx w
+                  let w =
+                    get-text-width ctx
+                      -' Inline.get-natural-advance ib-title
+                      -' Inline.get-natural-advance ib-page
+                  in
+                  if w <' 0pt then inline-fil else
+                    make-dots-line ctx w
                 in
-                  bbacc +++ line-break true true ctx (ib-title ++ ib-middle ++ ib-page)
-
-          | TOCElementSubsection(label, title) ->
+                bbacc +++ line-break true true ctx (ib-title ++ ib-middle ++ ib-page)
+            | TOCElementSubsection(label, title) ->
                 let ctx = ctx-doc in
                 let it-num = embed-string (get-cross-reference-number `subsection:` label) in
                 let it-page = embed-string (get-cross-reference-page `subsection:` label) in
@@ -517,23 +513,27 @@ end = struct
                 in
                 let ib-page = inline-skip 3pt ++ read-inline ctx it-page in
                 let ib-middle =
-                  let w = (get-text-width ctx) -' (get-natural-width ib-title) -' (get-natural-width ib-page) in
-                    if w <' 0pt then inline-fil else
-                      make-dots-line ctx w
+                  let w =
+                    get-text-width ctx
+                      -' Inline.get-natural-advance ib-title
+                      -' Inline.get-natural-advance ib-page
+                  in
+                  if w <' 0pt then inline-fil else
+                    make-dots-line ctx w
                 in
-                  bbacc +++ line-break true true ctx (ib-title ++ ib-middle ++ ib-page)
-
-          )) block-nil
+                bbacc +++ line-break true true ctx (ib-title ++ ib-middle ++ ib-page)
+            end
+          ) block-nil
         in
-          (chapter-heading ctx-doc None ib-toc-title) +++ bb-toc-main
-            +++ clear-page
-            +++ line-break false false (ctx-doc |> set-paragraph-margin 0pt 0pt)
-              (hook-page-break (fun pbinfo _ -> (
-                let n = pbinfo#page-number in
-                let () = display-message (`last-no-number = `# ^ arabic n) in
-                let () = last-no-number-ref <- n in
-                show-page-number-ref <- Some(n)
-              )) ++ inline-fil)
+        (chapter-heading ctx-doc None ib-toc-title) +++ bb-toc-main
+          +++ clear-page
+          +++ line-break false false (ctx-doc |> set-paragraph-margin 0pt 0pt)
+            (hook-page-break (fun pbinfo _ ->
+              let n = pbinfo#page-number in
+              let () = display-message (`last-no-number = `# ^ arabic n) in
+              let () = last-no-number-ref <- n in
+              show-page-number-ref <- Some(n)
+            ) ++ inline-fil)
     in
 
     % -- bibliography --
@@ -543,45 +543,43 @@ end = struct
       in
       let bibs = record#bibliography in
       let () =
-        bibs |> List.iteri (fun i (label, _) -> (
+        bibs |> List.iter-indexed (fun i (label, _) ->
           register-cross-reference (`bib:` ^ label) (arabic (i + 1))
-        ))
+        )
       in
       let bb-bib-main =
-        bibs |> List.fold-lefti (fun i bbacc (_, bibitem) -> (
+        bibs |> List.fold-indexed (fun bbacc i (_, bibitem) ->
           let it =
             match bibitem with
-            | InProceedings(r) ->
+            | Bib.InProceedings(r) ->
                 let it-authors = join-authors r#author in
                 let it-title = r#title in
                 let it-book-title = r#booktitle in
                 let it-volnum = make-volume-and-number r#volume r#number r#series in
                 let it-pages = make-pages r#pages in
                 let it-year = embed-string (arabic r#year) in
-                  {#it-authors;. #it-title;.
-                    In \book-title{#it-book-title;}, #it-volnum;pages #it-pages;, #it-year;.}
-
-            | Article(r) ->
+                {#it-authors;. #it-title;.
+                  In \book-title{#it-book-title;}, #it-volnum;pages #it-pages;,
+                  #it-year;.}
+            | Bib.Article(r) ->
                 let it-authors = join-authors r#author in
                 let it-title = r#title in
                 let it-journal = r#journal in
                 let it-volnum = make-volume-and-number r#volume r#number None in
                 let it-pages = make-pages r#pages in
                 let it-year = embed-string (arabic r#year) in
-                  {#it-authors;. #it-title;.
-                    \book-title{#it-journal;}, #it-volnum;pages #it-pages;, #it-year;.}
-
-            | Book(r) ->
+                {#it-authors;. #it-title;.
+                  \book-title{#it-journal;}, #it-volnum;pages #it-pages;, #it-year;.}
+            | Bib.Book(r) ->
                 let it-authors = join-authors r#author in
                 let it-title = r#title in
                 let it-publisher = r#publisher in
                 let it-year = embed-string (arabic r#year) in
-                  {#it-authors;. \book-title{#it-title;}. #it-publisher;, #it-year;.}
-
+                {#it-authors;. \book-title{#it-title;}. #it-publisher;, #it-year;.}
+            end
           in
-            bbacc +++ bib-entry ctx-doc (i + 1) (read-inline ctx-doc it)
-
-        )) block-nil
+          bbacc +++ bib-entry ctx-doc (i + 1) (read-inline ctx-doc it)
+        ) block-nil
       in
         (chapter-heading ctx-doc None ib-bib-title) +++ bb-bib-main
     in
@@ -591,8 +589,8 @@ end = struct
       let hgtfb = height-of-float-boxes pbinfo#page-number in
       let (txtorgx, txtorgy) = txtorg in
       (|
-        text-origin = (txtorgx, txtorgy +' hgtfb);
-        text-height = txthgt -' hgtfb;
+        text-origin = (txtorgx, txtorgy +' hgtfb),
+        text-height = txthgt -' hgtfb,
       |)
     in
     let pagepartsf pbinfo =
@@ -603,7 +601,7 @@ end = struct
             |> set-paragraph-margin 0pt 0pt
         in
         let (bb-float-boxes, acc) =
-          (!ref-float-boxes) |> List.fold-left (fun (bbacc, acc) elem -> (
+          (!ref-float-boxes) |> List.fold (fun (bbacc, acc) elem ->
             let (pn, bb) = elem in
               if pn < pageno then
                 let bbs =
@@ -614,41 +612,39 @@ end = struct
                   (bbacc +++ bbs, acc)
               else
                 (bbacc, elem :: acc)
-          )) (block-nil, [])
+          ) (block-nil, [])
         in
         let () = ref-float-boxes <- acc in
-          bb-float-boxes
+        bb-float-boxes
       in
       let footer =
         match !show-page-number-ref with
         | Some(pagenolast) ->
             let ctx = get-standard-context ftrwid in
             let it-pageno = embed-string (arabic (pageno - pagenolast + 1)) in
-              line-break true true ctx
-                (inline-fil ++ (read-inline ctx {— #it-pageno; —}) ++ inline-fil)
-
+            line-break true true ctx
+              (inline-fil ++ (read-inline ctx {— #it-pageno; —}) ++ inline-fil)
         | None ->
             block-nil
+        end
       in
-        (|
-          header-origin  = hdrorg;
-          header-content = header;
-          footer-origin  = ftrorg;
-          footer-content = footer;
-        |)
+      (|
+        header-origin  = hdrorg,
+        header-content = header,
+        footer-origin  = ftrorg,
+        footer-content = footer,
+      |)
     in
-      page-break page pagecontf pagepartsf (bb-title +++ bb-abs +++ bb-ackn +++ bb-toc +++ bb-main +++ bb-bib)
+    page-break page pagecontf pagepartsf (bb-title +++ bb-abs +++ bb-ackn +++ bb-toc +++ bb-main +++ bb-bib)
 
-
-  let paragraph-indent =
+  val paragraph-indent =
     inline-skip 32pt
 
-
-  let-block ctx +p inner =
+  val block ctx +p inner =
     let needs-indentation =
       if !needs-indentation-ref then true else
         let () = needs-indentation-ref <- true in
-          false
+        false
     in
     let ib-inner = read-inline ctx inner in
     let ib-parag =
@@ -657,65 +653,58 @@ end = struct
       else
         ib-inner ++ inline-fil
     in
-      form-paragraph ctx ib-parag
+    Block.form-paragraph ctx ib-parag
 
-
-  let-block ctx +pn inner =
+  val block ctx +pn inner =
     let () = needs-indentation-ref <- true in
     let ib-inner = read-inline ctx inner in
-      form-paragraph ctx (ib-inner ++ inline-fil)
+    Block.form-paragraph ctx (ib-inner ++ inline-fil)
 
-
-  let-block ctx +p-ja inner =
+  val block ctx +p-ja inner =
     let len = get-font-size ctx *' font-ratio-cjk in
     let ib-inner = inline-skip len ++ read-inline ctx inner ++ inline-fil in
-      form-paragraph ctx ib-inner
+    Block.form-paragraph ctx ib-inner
 
+  val mutable num-figure <- 0
+  val mutable num-chapter <- 0
+  val mutable num-section <- 0
+  val mutable num-subsection <- 0
+  val mutable num-theorems <- 0
 
-  let-mutable num-figure <- 0
-  let-mutable num-chapter <- 0
-  let-mutable num-section <- 0
-  let-mutable num-subsection <- 0
-  let-mutable num-theorems <- 0
-
-
-  let figure-scheme ctx labelopt prefix category caption inner =
+  val figure-scheme ctx labelopt prefix category caption inner =
     let () = num-figure <- !num-figure + 1 in
     let s-num = arabic !num-chapter ^ `.` ^ arabic !num-figure in
     let () =
       match labelopt with
       | Some(label) -> register-cross-reference (prefix ^ label ^ `:num`) s-num
       | None        -> ()
+      end
     in
     let it-num = embed-string s-num in
     let bb-inner =
-      let d (_, _) _ _ _ = [] in
-      block-frame-breakable ctx (2pt, 2pt, 2pt, 2pt) (d, d, d, d) (fun ctx -> (
+      let d (_, _) _ _ _ = Graphics.empty in
+      block-frame-breakable ctx (2pt, 2pt, 2pt, 2pt) (d, d, d, d) (fun ctx ->
         read-block ctx inner
           +++ line-break true true ctx (inline-fil ++ read-inline ctx {#category; #it-num; #caption;} ++ inline-fil)
-      ))
+      )
     in
-      hook-page-break (fun pbinfo _ -> (
-%        let () = display-message (`register` ^ (arabic pbinfo#page-number)) in
-        ref-float-boxes <- (pbinfo#page-number, bb-inner) :: !ref-float-boxes
-      ))
+    hook-page-break (fun pbinfo _ -> (
+%      let () = display-message (`register` ^ (arabic pbinfo#page-number)) in
+      ref-float-boxes <- (pbinfo#page-number, bb-inner) :: !ref-float-boxes
+    ))
 
-
-  let-inline ctx \figure ?:labelopt caption inner =
+  val inline ctx \figure ?(label = labelopt) caption inner =
     figure-scheme ctx labelopt `figure:` {Figure} caption inner
 
-
-  let-inline ctx \table ?:labelopt caption inner =
+  val inline ctx \table ?(label = labelopt) caption inner =
     figure-scheme ctx labelopt `table:` {Table} caption inner
 
-
-  let page-number pbinfo =
+  val page-number pbinfo =
     let () = display-message `page-number` in
     arabic (pbinfo#page-number - !last-no-number-ref + 1)
 
-
-  let chapter-scheme ctx label title inner =
-    let () = increment num-chapter in
+  val chapter-scheme ctx label title inner =
+    let () = Ref.increment num-chapter in
     let () = num-section <- 0 in
     let () = num-subsection <- 0 in
     let () = num-figure <- 0 in
@@ -732,12 +721,11 @@ end = struct
     let ib-title = read-inline ctx-title title in
     let bb-title = chapter-heading ctx (Some(ib-num)) ib-title in
     let bb-inner = read-block ctx inner in
-      bb-title +++ bb-inner +++ clear-page
+    bb-title +++ bb-inner +++ clear-page
 
-
-  let section-scheme ctx label title inner =
+  val section-scheme ctx label title inner =
     let ctx-title = make-section-title ctx in
-    let () = increment num-section in
+    let () = Ref.increment num-section in
     let () = num-subsection <- 0 in
     let () = num-theorems <- 0 in
     let () = needs-indentation-ref <- false in
@@ -752,10 +740,9 @@ end = struct
     let ib-title = read-inline ctx-title title in
     let bb-title = section-heading ctx (ib-num ++ (inline-skip 10pt) ++ ib-title ++ (inline-fil)) in
     let bb-inner = read-block ctx inner in
-      bb-title +++ bb-inner
+    bb-title +++ bb-inner
 
-
-  let subsection-scheme ctx label title inner =
+  val subsection-scheme ctx label title inner =
     let () = num-subsection <- !num-subsection + 1 in
     let () = needs-indentation-ref <- false in
     let s-num = arabic (!num-chapter) ^ `.` ^ arabic (!num-section) ^ `.` ^ arabic (!num-subsection) in
@@ -773,49 +760,47 @@ end = struct
         (ib-num ++ (inline-skip 10pt) ++ ib-title ++ (inline-fil))
     in
     let bb-inner = read-block ctx inner in
-      bb-title +++ bb-inner
+    bb-title +++ bb-inner
 
-
-  let-block ctx +chapter ?:labelopt title inner =
+  val block ctx +chapter ?(label = labelopt) title inner =
     let label =
       match labelopt with
       | None        -> generate-fresh-label ()
       | Some(label) -> label
+      end
     in
-      chapter-scheme ctx label title inner
+    chapter-scheme ctx label title inner
 
-
-  let-block ctx +section ?:labelopt title inner =
+  val block ctx +section ?(label = labelopt) title inner =
     let label =
       match labelopt with
       | None        -> generate-fresh-label ()
       | Some(label) -> label
+      end
     in
-      section-scheme ctx label title inner
+    section-scheme ctx label title inner
 
-
-  let-block ctx +subsection ?:labelopt title inner =
+  val block ctx +subsection ?(label = labelopt) title inner =
     let label =
       match labelopt with
       | None        -> generate-fresh-label ()
       | Some(label) -> label
+      end
     in
-      subsection-scheme ctx label title inner
+    subsection-scheme ctx label title inner
 
-
-  let-inline ctx \emph inner =
+  val inline ctx \emph inner =
     let ctx-emph =
-      ctx |> set-font Latin font-latin-italic
-          |> set-cjk-font font-cjk-gothic
+      ctx
+        |> set-font Latin font-latin-italic
+        |> set-cjk-font font-cjk-gothic
     in
-      read-inline ctx-emph inner
+    read-inline ctx-emph inner
 
+  val inline \dfn inner = {\emph{#inner;}}
 
-  let-inline \dfn inner = {\emph{#inner;}}
-
-
-  let theorem-scheme ctx ctxf category wordopt label inner =
-    let () = increment num-theorems in
+  val theorem-scheme ctx ctxf category wordopt label inner =
+    let () = Ref.increment num-theorems in
     let s-num =
       (arabic (!num-chapter)) ^ `.` ^ (arabic (!num-section)) ^ `.` ^ (arabic (!num-theorems))
     in
@@ -828,84 +813,76 @@ end = struct
       match wordopt with
       | None       -> inline-nil
       | Some(word) -> read-inline ctx {\ (#word;).}
+      end
     in
     let ib-inner = read-inline (ctxf ctx) inner in
     let () = needs-indentation-ref <- true in
-      line-break true true ctx
-        (ib-dfn ++ ib-word ++ inline-skip (get-font-size ctx) ++ ib-inner ++ inline-fil)
+    line-break true true ctx
+      (ib-dfn ++ ib-word ++ inline-skip (get-font-size ctx) ++ ib-inner ++ inline-fil)
 
 
-  let make-label prefix labelopt =
+  val make-label prefix labelopt =
     match labelopt with
     | None    -> generate-fresh-label ()
     | Some(s) -> prefix ^ s
+    end
 
-
-  let-block ctx +definition ?:wordopt ?:labelopt inner =
+  val block ctx +definition ?(title = wordopt, label = labelopt) inner =
     let label = make-label `definition:` labelopt in
-      theorem-scheme ctx (fun x -> x) {Definition} wordopt label inner
+    theorem-scheme ctx (fun x -> x) {Definition} wordopt label inner
 
-
-  let-block ctx +theorem ?:wordopt ?:labelopt inner =
+  val block ctx +theorem ?(title = wordopt, label = labelopt) inner =
     let label = make-label `theorem:` labelopt in
-      theorem-scheme ctx (set-latin-font font-latin-italic) {Theorem} wordopt label inner
+    theorem-scheme ctx (set-latin-font font-latin-italic) {Theorem} wordopt label inner
 
-
-  let-block ctx +lemma ?:wordopt ?:labelopt inner =
+  val block ctx +lemma ?(title = wordopt, label = labelopt) inner =
     let label = make-label `lemma:` labelopt in
-      theorem-scheme ctx (set-latin-font font-latin-italic) {Lemma} wordopt label inner
+    theorem-scheme ctx (set-latin-font font-latin-italic) {Lemma} wordopt label inner
 
-
-  let-block ctx +corollary ?:wordopt ?:labelopt inner =
+  val block ctx +corollary ?(title = wordopt, label = labelopt) inner =
     let label = make-label `corollary:` labelopt in
-      theorem-scheme ctx (set-latin-font font-latin-italic) {Corollary} wordopt label inner
+    theorem-scheme ctx (set-latin-font font-latin-italic) {Corollary} wordopt label inner
 
-
-  let-block ctx +example ?:wordopt ?:labelopt inner =
+  val block ctx +example ?(title = wordopt, label = labelopt) inner =
     let label = make-label `example:` labelopt in
-      theorem-scheme ctx (fun x -> x) {Example} wordopt label inner
+    theorem-scheme ctx (fun x -> x) {Example} wordopt label inner
 
-
-  let-block ctx +proof ?:wordopt inner =
+  val block ctx +proof ?(title = wordopt) inner =
     let ib-heading =
       let ctx = ctx |> set-latin-font font-latin-italic in
-        match wordopt with
-        | None    -> read-inline ctx {Proof.}
-        | Some(w) -> read-inline ctx {Proof of #w;.}
+      match wordopt with
+      | None    -> read-inline ctx {Proof.}
+      | Some(w) -> read-inline ctx {Proof of #w;.}
+      end
     in
     let ib-box = read-inline ctx {▪} in
-      line-break true true ctx
-        (ib-heading ++ inline-skip (get-font-size ctx) ++ read-inline ctx inner ++ inline-fil ++ ib-box)
+    line-break true true ctx
+      (ib-heading ++ inline-skip (get-font-size ctx) ++ read-inline ctx inner ++ inline-fil ++ ib-box)
 
+  val get-number prefix label =
+    match get-cross-reference (prefix ^ label ^ `:num`) with
+    | None    -> {?}
+    | Some(s) -> embed-string s
+    end
 
-  let get-number prefix label =
-      match get-cross-reference (prefix ^ label ^ `:num`) with
-      | None    -> {?}
-      | Some(s) -> embed-string s
-
-
-  let-inline ctx \ref-definition label =
+  val inline ctx \ref-definition label =
     let it-num = get-number `definition:` label in
-      read-inline ctx {Definition #it-num;}
+    read-inline ctx {Definition #it-num;}
 
-  let-inline ctx \ref-theorem label =
+  val inline ctx \ref-theorem label =
     let it-num = get-number `theorem:` label in
-      read-inline ctx {Theorem #it-num;}
+    read-inline ctx {Theorem #it-num;}
 
-  let-inline ctx \ref-lemma label =
+  val inline ctx \ref-lemma label =
     let it-num = get-number `lemma:` label in
-      read-inline ctx {Lemma #it-num;}
+    read-inline ctx {Lemma #it-num;}
 
-  let-inline ctx \ref-corollary label =
+  val inline ctx \ref-corollary label =
     let it-num = get-number `corollary:` label in
-      read-inline ctx {Corollary #it-num;}
+    read-inline ctx {Corollary #it-num;}
 
-  let-inline ctx \ref-example label =
+  val inline ctx \ref-example label =
     let it-num = get-number `example:` label in
-      read-inline ctx {Example #it-num;}
+    read-inline ctx {Example #it-num;}
 
 end
-
-
-let document = CSThesis.document
-  % ad-hoc

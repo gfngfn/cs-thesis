@@ -1,0 +1,35 @@
+module Bib = struct
+  type in-proceedings = (|
+    author    : list inline-text,
+    title     : inline-text,
+    booktitle : inline-text,
+    series    : option inline-text,
+    volume    : option int,
+    number    : option inline-text,
+    pages     : int * int,
+    year      : int,
+  |)
+
+  type article = (|
+    author  : list inline-text,
+    title   : inline-text,
+    journal : inline-text,
+    volume  : option int,
+    number  : option inline-text,
+    pages   : int * int,
+    year    : int,
+  |)
+
+  type book = (|
+    author    : list inline-text,
+    title     : inline-text,
+    publisher : inline-text,
+    year      : int,
+  |)
+
+  type item =
+    | InProceedings of in-proceedings
+    | Article       of article
+    | Book          of book
+
+end
