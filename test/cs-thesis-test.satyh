@@ -1,0 +1,10 @@
+use package open Testing
+use CsThesis
+
+module CsThesisTest = struct
+
+  #[test]
+  val dummy-test () =
+    assert-equal Equality.int 42 42
+
+end

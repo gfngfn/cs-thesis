@@ -1,5 +1,0 @@
-module Calc :> sig
-  val succ : int -> int
-end = struct
-  val succ n = n + 1
-end
