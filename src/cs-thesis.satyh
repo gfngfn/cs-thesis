@@ -58,9 +58,13 @@ module CsThesis :> sig
       date : inline-text,
       abstract-en : block-text,
       abstract-ja : block-text,
-      acknowledgements : block-text,
+      acknowledgments : block-text,
       bibliography : list (string * Bib.item),
     |) -> block-text -> document
+
+  % Made public for testing:
+  val repeat-string : int -> string -> string
+  val roman-numeral : int -> string
 
   val font-latin-roman  : font * float * float
   val font-latin-italic : font * float * float
@@ -72,6 +76,7 @@ module CsThesis :> sig
   val set-cjk-font   : (font * float * float) -> context -> context
   val \ref : inline [string]
   val \ref-page : inline [string]
+  val \ref-part : inline [string]
   val \ref-chapter : inline [string]
   val \ref-section : inline [string]
   val \ref-definition : inline [string]
@@ -87,6 +92,7 @@ module CsThesis :> sig
   val +p : block [inline-text]
   val +pn : block [inline-text]
   val +p-ja : block [inline-text]
+  val +part : block [?(label : string) inline-text, block-text]
   val +chapter : block [?(label : string) inline-text, block-text]
   val +section : block [?(label : string) inline-text, block-text]
   val +subsection : block [?(label : string) inline-text, block-text]
@@ -106,10 +112,44 @@ end = struct
 
   include Appearance
 
+  val repeat-string n s =
+    let rec aux n =
+      if n <= 0 then
+        ` `
+      else
+        s ^ aux (n - 1)
+    in
+    aux n
+
+  val roman-numeral =
+    let table =
+      [
+        (1000, `M`), (900, `CM`), (500, `D`), (400, `CD`),
+        (100, `C`), (90, `XC`), (50, `L`), (40, `XL`),
+        (10, `X`), (9, `IX`), (5, `V`), (4, `IV`), (1, `I`),
+      ]
+    in
+    (fun n ->
+      if n < 1 || n > 3999 then
+        abort-with-message `roman-numeral: n must be between 1 and 3999`
+      else
+        let rec aux s n elems =
+          match elems with
+          | [] ->
+              s
+          | (value, numeral) :: rest ->
+              let count = n / value in
+              aux (s ^ (repeat-string count numeral)) (n mod value) rest
+          end
+        in
+        aux ` ` n table
+    )
+
   type toc-element =
-    | TOCElementChapter    of string * inline-text
-    | TOCElementSection    of string * inline-text
-    | TOCElementSubsection of string * inline-text
+    | TocElementPart       of string * inline-text
+    | TocElementChapter    of string * inline-text
+    | TocElementSection    of string * inline-text
+    | TocElementSubsection of string * inline-text
 
   val generate-fresh-label =
     let mutable count <- 0 in
@@ -127,6 +167,11 @@ end = struct
     let opt = get-cross-reference (key ^ `:page`) in
     let it = embed-string (Option.from `?` opt) in
     read-inline ctx it
+
+  val inline ctx \ref-part key =
+    let opt = get-cross-reference (`part:` ^ key ^ `:num`) in
+    let it = embed-string (Option.from `?` opt) in
+    read-inline ctx {Part #it;}
 
   val inline ctx \ref-chapter key =
     let opt = get-cross-reference (`chapter:` ^ key ^ `:num`) in
@@ -149,11 +194,12 @@ end = struct
     read-inline ctx {Table #it;}
 
   val font-size-normal  = 12pt
-  val font-size-title   = 32pt
   val font-size-author  = 16pt
+  val font-size-part    = 32pt
   val font-size-chapter = 24pt
   val font-size-section = 18pt
   val font-size-subsection = 16pt
+  val font-size-toc-part = 16pt
 
   val section-top-margin = 20pt
   val section-bottom-margin = 12pt
@@ -200,6 +246,12 @@ end = struct
       if pn < pageno then h +' (get-natural-length bb) else h
     ) 0pt
 
+  val make-part-title ctx =
+    ctx
+      |> set-font-size font-size-part
+      |> set-font Latin font-latin-bold
+      |> set-cjk-font font-cjk-gothic
+
   val make-chapter-title ctx =
     ctx
       |> set-font-size font-size-chapter
@@ -220,17 +272,32 @@ end = struct
 
   val mutable toc-acc-ref <- []
 
+  val register-cross-reference-number prefix label content =
+    register-cross-reference (prefix ^ label ^ `:num`) content
+
   val get-cross-reference-number prefix label =
     match get-cross-reference (prefix ^ label ^ `:num`) with
     | None    -> `?`
     | Some(s) -> s
     end
 
+  val register-cross-reference-page prefix label content =
+    register-cross-reference (prefix ^ label ^ `:page`) content
+
   val get-cross-reference-page prefix label =
     match get-cross-reference (prefix ^ label ^ `:page`) with
     | None    -> `?`
     | Some(s) -> s
     end
+
+  val part-heading ctx ib-num-opt ib-title =
+    let bb =
+      match ib-num-opt with
+      | None         -> block-nil
+      | Some(ib-num) -> line-break false false ctx (ib-num ++ inline-fil)
+      end
+    in
+    bb +++ line-break false false ctx (ib-title ++ inline-fil) +++ clear-page
 
   val chapter-heading ctx ib-num-opt ib-title =
     let bb =
@@ -342,7 +409,6 @@ end = struct
       in
       let spvs-en = record#supervisor-en in
       let spvs-ja = record#supervisor-ja in
-      let spvs-title = record#supervisor-title in
       let date = record#date in
       let degree = record#degree in
       [
@@ -365,7 +431,7 @@ end = struct
         centerf {for the Degree of #degree;},
         block-skip 18pt,
         centerf {Thesis Supervisor: #spvs-en; #spvs-ja;},
-        centerf {#spvs-title; of Computer Science},
+        centerf record#supervisor-title,
         clear-page,
       ] |> List.fold (+++) block-nil
     in
@@ -376,14 +442,14 @@ end = struct
       read-block ctx-doc '<+abstract(record#abstract-en)(record#abstract-ja);>
     in
 
-    % -- acknowledgements --
+    % -- acknowledgments --
     let bb-ackn =
       let () = needs-indentation-ref <- false in
       let ib-ackn-title =
-        read-inline (make-chapter-title ctx-doc) {Acknowledgements} ++ inline-fil
+        read-inline (make-chapter-title ctx-doc) {Acknowledgments} ++ inline-fil
       in
       (chapter-heading ctx-doc None ib-ackn-title)
-        +++ read-block ctx-doc record#acknowledgements
+        +++ read-block ctx-doc record#acknowledgments
           +++ clear-page
     in
 
@@ -398,7 +464,21 @@ end = struct
         let bb-toc-main =
           (!toc-acc-ref) |> List.reverse |> List.fold (fun bbacc tocelem ->
             match tocelem with
-            | TOCElementChapter(label, title) ->
+            | TocElementPart(label, title) ->
+                let ctx =
+                  ctx-doc
+                    |> set-latin-font font-latin-bold
+                    |> set-font-size font-size-toc-part
+                in
+                let it-num = embed-string (get-cross-reference-number `part:` label) in
+                let it-page = embed-string (get-cross-reference-page `part:` label) in
+                let ib-title =
+                    read-inline ctx {Part #it-num;: #title;}
+                      ++ inline-skip 3pt
+                in
+                let ib-page = inline-skip 3pt ++ read-inline ctx it-page in
+                bbacc +++ line-break true true ctx (ib-title ++ inline-fil ++ ib-page)
+            | TocElementChapter(label, title) ->
                 let ctx =
                   ctx-doc |> set-latin-font font-latin-bold
                 in
@@ -419,7 +499,7 @@ end = struct
                     make-dots-line ctx w
                 in
                 bbacc +++ line-break true true ctx (ib-title ++ ib-middle ++ ib-page)
-            | TOCElementSection(label, title) ->
+            | TocElementSection(label, title) ->
                 let ctx = ctx-doc in
                 let it-num = embed-string (get-cross-reference-number `section:` label) in
                 let it-page = embed-string (get-cross-reference-page `section:` label) in
@@ -438,7 +518,7 @@ end = struct
                     make-dots-line ctx w
                 in
                 bbacc +++ line-break true true ctx (ib-title ++ ib-middle ++ ib-page)
-            | TOCElementSubsection(label, title) ->
+            | TocElementSubsection(label, title) ->
                 let ctx = ctx-doc in
                 let it-num = embed-string (get-cross-reference-number `subsection:` label) in
                 let it-page = embed-string (get-cross-reference-page `subsection:` label) in
@@ -461,15 +541,16 @@ end = struct
             end
           ) block-nil
         in
-        (chapter-heading ctx-doc None ib-toc-title) +++ bb-toc-main
-          +++ clear-page
-          +++ line-break false false (ctx-doc |> set-paragraph-margin 0pt 0pt)
+        chapter-heading ctx-doc None ib-toc-title
+          +++ bb-toc-main
+          +++ line-break false true (ctx-doc |> set-paragraph-margin 0pt 0pt)
             (hook-page-break (fun pbinfo _ ->
               let n = pbinfo#page-number in
               let () = display-message (`last-no-number = `# ^ arabic n) in
               let () = last-no-number-ref <- n in
               show-page-number-ref <- Some(n)
             ) ++ inline-fil)
+          +++ clear-page
     in
 
     % -- bibliography --
@@ -523,10 +604,13 @@ end = struct
       let footer =
         match !show-page-number-ref with
         | Some(pagenolast) ->
-            let ctx = get-standard-context ftrwid in
-            let it-pageno = embed-string (arabic (pageno - pagenolast + 1)) in
-            line-break true true ctx
-              (inline-fil ++ (read-inline ctx {— #it-pageno; —}) ++ inline-fil)
+            if pageno > pagenolast then
+              let ctx = get-standard-context ftrwid in
+              let it-pageno = embed-string (arabic (pageno - pagenolast)) in
+              line-break true true ctx
+                (inline-fil ++ (read-inline ctx {— #it-pageno; —}) ++ inline-fil)
+            else
+              block-nil
         | None ->
             block-nil
         end
@@ -569,6 +653,7 @@ end = struct
     Block.form-paragraph ctx ib-inner
 
   val mutable num-figure <- 0
+  val mutable num-part <- 0
   val mutable num-chapter <- 0
   val mutable num-section <- 0
   val mutable num-subsection <- 0
@@ -579,7 +664,7 @@ end = struct
     let s-num = arabic !num-chapter ^ `.` ^ arabic !num-figure in
     let () =
       match labelopt with
-      | Some(label) -> register-cross-reference (prefix ^ label ^ `:num`) s-num
+      | Some(label) -> register-cross-reference-number prefix label s-num
       | None        -> ()
       end
     in
@@ -603,8 +688,30 @@ end = struct
     figure-scheme ctx labelopt `table:` {Table} caption inner
 
   val page-number pbinfo =
-    let () = display-message `page-number` in
-    arabic (pbinfo#page-number - !last-no-number-ref + 1)
+    arabic (pbinfo#page-number - !last-no-number-ref)
+
+  val part-scheme ctx label title inner =
+    let () = Ref.increment num-part in
+    % NOTE: We do not need to reset `num-chapter` here.
+    let () = num-section <- 0 in
+    let () = num-subsection <- 0 in
+    let () = num-figure <- 0 in
+    let () = needs-indentation-ref <- false in
+    let s-num = roman-numeral (!num-part) in
+    let () = register-cross-reference-number `part:` label s-num in
+    let () = toc-acc-ref <- (TocElementPart(label, title)) :: !toc-acc-ref in
+    let ctx-title = make-part-title ctx in
+    let ib-num =
+      read-inline ctx-title (embed-string (`PART `# ^ s-num ^ `:`))
+        ++ hook-page-break (fun pbinfo _ ->
+          register-cross-reference-page `part:` label (page-number pbinfo)
+        )
+    in
+    let ib-title = read-inline ctx-title title in
+    let bb-title = part-heading ctx (Some(ib-num)) ib-title in
+    let bb-inner = read-block ctx inner in
+    bb-title +++ bb-inner
+    % `clear-page` is unnecessary here, assuming that there is at least one chapter in the part.
 
   val chapter-scheme ctx label title inner =
     let () = Ref.increment num-chapter in
@@ -613,13 +720,14 @@ end = struct
     let () = num-figure <- 0 in
     let () = needs-indentation-ref <- false in
     let s-num = arabic (!num-chapter) in
-    let () = register-cross-reference (`chapter:` ^ label ^ `:num`) s-num in
-    let () = toc-acc-ref <- (TOCElementChapter(label, title)) :: !toc-acc-ref in
+    let () = register-cross-reference-number `chapter:` label s-num in
+    let () = toc-acc-ref <- (TocElementChapter(label, title)) :: !toc-acc-ref in
     let ctx-title = make-chapter-title ctx in
     let ib-num =
       read-inline ctx-title (embed-string (`Chapter `# ^ s-num))
         ++ hook-page-break (fun pbinfo _ ->
-             register-cross-reference (`chapter:` ^ label ^ `:page`) (page-number pbinfo))
+          register-cross-reference-page `chapter:` label (page-number pbinfo)
+        )
     in
     let ib-title = read-inline ctx-title title in
     let bb-title = chapter-heading ctx (Some(ib-num)) ib-title in
@@ -633,12 +741,13 @@ end = struct
     let () = num-theorems <- 0 in
     let () = needs-indentation-ref <- false in
     let s-num = arabic (!num-chapter) ^ `.` ^ arabic (!num-section) in
-    let () = register-cross-reference (`section:` ^ label ^ `:num`) s-num in
-    let () = toc-acc-ref <- (TOCElementSection(label, title)) :: !toc-acc-ref in
+    let () = register-cross-reference-number `section:` label s-num in
+    let () = toc-acc-ref <- (TocElementSection(label, title)) :: !toc-acc-ref in
     let ib-num =
       read-inline ctx-title (embed-string (s-num ^ `.`))
         ++ hook-page-break (fun pbinfo _ ->
-             register-cross-reference (`section:` ^ label ^ `:page`) (arabic pbinfo#page-number))
+          register-cross-reference-page `section:` label (page-number pbinfo)
+        )
     in
     let ib-title = read-inline ctx-title title in
     let bb-title = section-heading ctx (ib-num ++ (inline-skip 10pt) ++ ib-title ++ (inline-fil)) in
@@ -649,13 +758,14 @@ end = struct
     let () = num-subsection <- !num-subsection + 1 in
     let () = needs-indentation-ref <- false in
     let s-num = arabic (!num-chapter) ^ `.` ^ arabic (!num-section) ^ `.` ^ arabic (!num-subsection) in
-    let () = register-cross-reference (`subsection:` ^ label ^ `:num`) s-num in
-    let () = toc-acc-ref <- (TOCElementSubsection(label, title)) :: !toc-acc-ref in
+    let () = register-cross-reference-number `subsection:` label s-num in
+    let () = toc-acc-ref <- (TocElementSubsection(label, title)) :: !toc-acc-ref in
     let ctx-title = make-subsection-title ctx in
     let ib-num =
       read-inline ctx-title (embed-string (s-num ^ `.`))
         ++ hook-page-break (fun pbinfo _ ->
-             register-cross-reference (`subsection:` ^ label ^ `:page`) (arabic pbinfo#page-number))
+          register-cross-reference-page `subsection:` label (page-number pbinfo)
+        )
     in
     let ib-title = read-inline ctx-title title in
     let bb-title =
@@ -664,6 +774,15 @@ end = struct
     in
     let bb-inner = read-block ctx inner in
     bb-title +++ bb-inner
+
+  val block ctx +part ?(label = labelopt) title inner =
+    let label =
+      match labelopt with
+      | None        -> generate-fresh-label ()
+      | Some(label) -> label
+      end
+    in
+    part-scheme ctx label title inner
 
   val block ctx +chapter ?(label = labelopt) title inner =
     let label =

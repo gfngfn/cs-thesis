@@ -30,6 +30,11 @@ module Preliminaries = struct
         theorem theorem theorem theorem theorem theorem theorem theorem.
       });
     >
+    +section{Subsequent Section}<
+      +p{
+        Hello!
+      }
+    >
   >
 
 end
