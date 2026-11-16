@@ -282,7 +282,6 @@ end = struct
     end
 
   val register-cross-reference-page prefix label content =
-    let () = display-message (prefix ^ label ^ `:page = `# ^ content) in
     register-cross-reference (prefix ^ label ^ `:page`) content
 
   val get-cross-reference-page prefix label =
@@ -544,14 +543,14 @@ end = struct
         in
         chapter-heading ctx-doc None ib-toc-title
           +++ bb-toc-main
-          +++ clear-page
-          +++ line-break false false (ctx-doc |> set-paragraph-margin 0pt 0pt)
+          +++ line-break false true (ctx-doc |> set-paragraph-margin 0pt 0pt)
             (hook-page-break (fun pbinfo _ ->
               let n = pbinfo#page-number in
               let () = display-message (`last-no-number = `# ^ arabic n) in
               let () = last-no-number-ref <- n in
               show-page-number-ref <- Some(n)
             ) ++ inline-fil)
+          +++ clear-page
     in
 
     % -- bibliography --
@@ -605,10 +604,13 @@ end = struct
       let footer =
         match !show-page-number-ref with
         | Some(pagenolast) ->
-            let ctx = get-standard-context ftrwid in
-            let it-pageno = embed-string (arabic (pageno - pagenolast + 1)) in
-            line-break true true ctx
-              (inline-fil ++ (read-inline ctx {— #it-pageno; —}) ++ inline-fil)
+            if pageno > pagenolast then
+              let ctx = get-standard-context ftrwid in
+              let it-pageno = embed-string (arabic (pageno - pagenolast)) in
+              line-break true true ctx
+                (inline-fil ++ (read-inline ctx {— #it-pageno; —}) ++ inline-fil)
+            else
+              block-nil
         | None ->
             block-nil
         end
@@ -686,8 +688,7 @@ end = struct
     figure-scheme ctx labelopt `table:` {Table} caption inner
 
   val page-number pbinfo =
-    let () = display-message `page-number` in
-    arabic (pbinfo#page-number - !last-no-number-ref + 1)
+    arabic (pbinfo#page-number - !last-no-number-ref)
 
   val part-scheme ctx label title inner =
     let () = Ref.increment num-part in
@@ -709,7 +710,8 @@ end = struct
     let ib-title = read-inline ctx-title title in
     let bb-title = part-heading ctx (Some(ib-num)) ib-title in
     let bb-inner = read-block ctx inner in
-    bb-title +++ bb-inner +++ clear-page
+    bb-title +++ bb-inner
+    % `clear-page` is unnecessary here, assuming that there is at least one chapter in the part.
 
   val chapter-scheme ctx label title inner =
     let () = Ref.increment num-chapter in
