@@ -58,7 +58,7 @@ module CsThesis :> sig
       date : inline-text,
       abstract-en : block-text,
       abstract-ja : block-text,
-      acknowledgements : block-text,
+      acknowledgments : block-text,
       bibliography : list (string * Bib.item),
     |) -> block-text -> document
 
@@ -342,7 +342,6 @@ end = struct
       in
       let spvs-en = record#supervisor-en in
       let spvs-ja = record#supervisor-ja in
-      let spvs-title = record#supervisor-title in
       let date = record#date in
       let degree = record#degree in
       [
@@ -365,7 +364,7 @@ end = struct
         centerf {for the Degree of #degree;},
         block-skip 18pt,
         centerf {Thesis Supervisor: #spvs-en; #spvs-ja;},
-        centerf {#spvs-title; of Computer Science},
+        centerf record#supervisor-title,
         clear-page,
       ] |> List.fold (+++) block-nil
     in
@@ -376,14 +375,14 @@ end = struct
       read-block ctx-doc '<+abstract(record#abstract-en)(record#abstract-ja);>
     in
 
-    % -- acknowledgements --
+    % -- acknowledgments --
     let bb-ackn =
       let () = needs-indentation-ref <- false in
       let ib-ackn-title =
-        read-inline (make-chapter-title ctx-doc) {Acknowledgements} ++ inline-fil
+        read-inline (make-chapter-title ctx-doc) {Acknowledgments} ++ inline-fil
       in
       (chapter-heading ctx-doc None ib-ackn-title)
-        +++ read-block ctx-doc record#acknowledgements
+        +++ read-block ctx-doc record#acknowledgments
           +++ clear-page
     in
 
@@ -461,7 +460,8 @@ end = struct
             end
           ) block-nil
         in
-        (chapter-heading ctx-doc None ib-toc-title) +++ bb-toc-main
+        chapter-heading ctx-doc None ib-toc-title
+          +++ bb-toc-main
           +++ clear-page
           +++ line-break false false (ctx-doc |> set-paragraph-margin 0pt 0pt)
             (hook-page-break (fun pbinfo _ ->

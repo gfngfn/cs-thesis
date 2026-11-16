@@ -16,13 +16,13 @@ document (|
   author-ja = {東大 次郎},
   supervisor-en = {Kyoin Shido},
   supervisor-ja = {紫藤 匡胤},
-  supervisor-title = {Professor},
+  supervisor-title = {Professor of Computer Science},
   submitted-to = {the Graduate School of the University of Tokyo},
   date = {February XXth, 20YY},
   abstract-en = abstract-en,
   abstract-ja = abstract-ja,
   bibliography = bibliography,
-  acknowledgements = '<
+  acknowledgments = '<
     +p{
       Acknowledgement acknowledgement acknowledgement acknowledgement acknowledgement
       acknowledgement acknowledgement acknowledgement, acknowledgement acknowledgement acknowledgement.
