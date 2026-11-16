@@ -272,11 +272,18 @@ end = struct
 
   val mutable toc-acc-ref <- []
 
+  val register-cross-reference-number prefix label content =
+    register-cross-reference (prefix ^ label ^ `:num`) content
+
   val get-cross-reference-number prefix label =
     match get-cross-reference (prefix ^ label ^ `:num`) with
     | None    -> `?`
     | Some(s) -> s
     end
+
+  val register-cross-reference-page prefix label content =
+    let () = display-message (prefix ^ label ^ `:page = `# ^ content) in
+    register-cross-reference (prefix ^ label ^ `:page`) content
 
   val get-cross-reference-page prefix label =
     match get-cross-reference (prefix ^ label ^ `:page`) with
@@ -655,7 +662,7 @@ end = struct
     let s-num = arabic !num-chapter ^ `.` ^ arabic !num-figure in
     let () =
       match labelopt with
-      | Some(label) -> register-cross-reference (prefix ^ label ^ `:num`) s-num
+      | Some(label) -> register-cross-reference-number prefix label s-num
       | None        -> ()
       end
     in
@@ -690,13 +697,14 @@ end = struct
     let () = num-figure <- 0 in
     let () = needs-indentation-ref <- false in
     let s-num = roman-numeral (!num-part) in
-    let () = register-cross-reference (`part:` ^ label ^ `:num`) s-num in
+    let () = register-cross-reference-number `part:` label s-num in
     let () = toc-acc-ref <- (TocElementPart(label, title)) :: !toc-acc-ref in
     let ctx-title = make-part-title ctx in
     let ib-num =
       read-inline ctx-title (embed-string (`PART `# ^ s-num ^ `:`))
         ++ hook-page-break (fun pbinfo _ ->
-             register-cross-reference (`part:` ^ label ^ `:page`) (page-number pbinfo))
+          register-cross-reference-page `part:` label (page-number pbinfo)
+        )
     in
     let ib-title = read-inline ctx-title title in
     let bb-title = part-heading ctx (Some(ib-num)) ib-title in
@@ -710,13 +718,14 @@ end = struct
     let () = num-figure <- 0 in
     let () = needs-indentation-ref <- false in
     let s-num = arabic (!num-chapter) in
-    let () = register-cross-reference (`chapter:` ^ label ^ `:num`) s-num in
+    let () = register-cross-reference-number `chapter:` label s-num in
     let () = toc-acc-ref <- (TocElementChapter(label, title)) :: !toc-acc-ref in
     let ctx-title = make-chapter-title ctx in
     let ib-num =
       read-inline ctx-title (embed-string (`Chapter `# ^ s-num))
         ++ hook-page-break (fun pbinfo _ ->
-             register-cross-reference (`chapter:` ^ label ^ `:page`) (page-number pbinfo))
+          register-cross-reference-page `chapter:` label (page-number pbinfo)
+        )
     in
     let ib-title = read-inline ctx-title title in
     let bb-title = chapter-heading ctx (Some(ib-num)) ib-title in
@@ -730,12 +739,13 @@ end = struct
     let () = num-theorems <- 0 in
     let () = needs-indentation-ref <- false in
     let s-num = arabic (!num-chapter) ^ `.` ^ arabic (!num-section) in
-    let () = register-cross-reference (`section:` ^ label ^ `:num`) s-num in
+    let () = register-cross-reference-number `section:` label s-num in
     let () = toc-acc-ref <- (TocElementSection(label, title)) :: !toc-acc-ref in
     let ib-num =
       read-inline ctx-title (embed-string (s-num ^ `.`))
         ++ hook-page-break (fun pbinfo _ ->
-             register-cross-reference (`section:` ^ label ^ `:page`) (arabic pbinfo#page-number))
+          register-cross-reference-page `section:` label (page-number pbinfo)
+        )
     in
     let ib-title = read-inline ctx-title title in
     let bb-title = section-heading ctx (ib-num ++ (inline-skip 10pt) ++ ib-title ++ (inline-fil)) in
@@ -746,13 +756,14 @@ end = struct
     let () = num-subsection <- !num-subsection + 1 in
     let () = needs-indentation-ref <- false in
     let s-num = arabic (!num-chapter) ^ `.` ^ arabic (!num-section) ^ `.` ^ arabic (!num-subsection) in
-    let () = register-cross-reference (`subsection:` ^ label ^ `:num`) s-num in
+    let () = register-cross-reference-number `subsection:` label s-num in
     let () = toc-acc-ref <- (TocElementSubsection(label, title)) :: !toc-acc-ref in
     let ctx-title = make-subsection-title ctx in
     let ib-num =
       read-inline ctx-title (embed-string (s-num ^ `.`))
         ++ hook-page-break (fun pbinfo _ ->
-             register-cross-reference (`subsection:` ^ label ^ `:page`) (arabic pbinfo#page-number))
+          register-cross-reference-page `subsection:` label (page-number pbinfo)
+        )
     in
     let ib-title = read-inline ctx-title title in
     let bb-title =

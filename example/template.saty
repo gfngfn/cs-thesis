@@ -43,6 +43,12 @@ document (|
       +p{
         Syntax and Semantics
       }
+      +section{Syntax}<
+        +p{Syntax}
+      >
+      +section{Semantics}<
+        +p{Semantics}
+      >
     >
     +chapter?(label = `metatheory`)({Metatheory})<
       +p{
