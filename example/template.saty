@@ -34,6 +34,20 @@ document (|
     }
   >,
 |) '<
-  +chapter?(label = `introduction`)({Introduction})< #introduction; >
-  +chapter?(label = `preliminaries`)({Preliminaries})< #preliminaries; >
+  +part?(label = `prologue`)({Prologue})<
+    +chapter?(label = `introduction`)({Introduction})< #introduction; >
+    +chapter?(label = `preliminaries`)({Preliminaries})< #preliminaries; >
+  >
+  +part?(label = `core-language`)({Core Language})<
+    +chapter?(label = `syntax-and-semantics`)({Syntax and Semantics})<
+      +p{
+        Syntax and Semantics
+      }
+    >
+    +chapter?(label = `metatheory`)({Metatheory})<
+      +p{
+        Metatheory
+      }
+    >
+  >
 >
